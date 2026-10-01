@@ -1,0 +1,7 @@
+Pratica2/build/
+Pratica2/dist/
+Pratica2/target/
+Pratica2/nbproject/private/
+*.class
+.DS_Store
+Thumbs.db
