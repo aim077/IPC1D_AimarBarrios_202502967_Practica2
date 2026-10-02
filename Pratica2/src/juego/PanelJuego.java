@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
+import datos.Datos;
 
 public class PanelJuego extends JPanel implements KeyListener {
     public static final int ANCHO = 900;
@@ -186,6 +187,7 @@ public class PanelJuego extends JPanel implements KeyListener {
     private void finalizar() {
         if (cancelado) return;
         piloto.registrarPartida(puntaje);
+        Datos.partidas.agregar(new Partida(piloto.getNombre(), piloto.getNave().getNombre(), puntaje));
         SwingUtilities.invokeLater(() -> {
             JOptionPane.showMessageDialog(this,
                     "Fin del juego\nPiloto: " + piloto.getNombre() + "\nPuntaje: " + puntaje);
