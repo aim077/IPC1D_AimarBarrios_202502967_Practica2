@@ -16,13 +16,17 @@ public class ReporteHTML {
 
     public static void generar(File carpeta) throws IOException {
         Partida[] top = Datos.partidas.getTop(10);
+        String marca = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+         String nombreImg = "grafica_top" + marca + ".png";
+         String nombreHtml = "grafica_top" + marca + ".html";
 
         //  La gráfica se exporta 
         BufferedImage img = GraficaTop.crear(top).createBufferedImage(800, 450);
-        ImageIO.write(img, "png", new File(carpeta, "grafica_top.png"));
+        ImageIO.write(img, "png", new File(carpeta, nombreImg));
 
         //  El HTML 
-        File archivo = new File(carpeta, "reporte_quetzal.html");
+        File archivo = new File(carpeta, nombreHtml);
         try (PrintWriter pw = new PrintWriter(
                 new OutputStreamWriter(new FileOutputStream(archivo), "UTF-8"))) {
 
@@ -41,7 +45,7 @@ public class ReporteHTML {
 
             pw.println("<h1>Quetzal Space Defender - Reporte</h1>");
             pw.println("<h2>Top de puntajes</h2>");
-            pw.println("<img src=\"grafica_top.png\" alt=\"Gráfica del top\">");
+            pw.println("<img src=\"" + nombreImg + "\" alt=\"Gráfica del top\">");
             escribirTablaPartidas(pw, top);
 
             pw.println("<h2>Historial de partidas</h2>");
