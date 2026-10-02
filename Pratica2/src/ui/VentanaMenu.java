@@ -33,8 +33,7 @@ public class VentanaMenu extends JFrame {
 
         btnJugar.addActionListener(e -> jugar());
         btnCrear.addActionListener(e -> crearPiloto());
-        btnTop.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Próximamente")); // se cambia en el commit 7
+        btnTop.addActionListener(e -> new VentanaTop().setVisible(true));
         btnSalir.addActionListener(e -> System.exit(0));
 
         panel.add(titulo);
