@@ -17,11 +17,11 @@ public class ReporteHTML {
     public static void generar(File carpeta) throws IOException {
         Partida[] top = Datos.partidas.getTop(10);
 
-        // 1. La gráfica se exporta como imagen
+        //  La gráfica se exporta 
         BufferedImage img = GraficaTop.crear(top).createBufferedImage(800, 450);
         ImageIO.write(img, "png", new File(carpeta, "grafica_top.png"));
 
-        // 2. El HTML (UTF-8 para que salgan bien las tildes)
+        //  El HTML 
         File archivo = new File(carpeta, "reporte_quetzal.html");
         try (PrintWriter pw = new PrintWriter(
                 new OutputStreamWriter(new FileOutputStream(archivo), "UTF-8"))) {

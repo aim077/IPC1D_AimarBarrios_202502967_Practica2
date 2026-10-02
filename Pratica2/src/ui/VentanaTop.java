@@ -71,7 +71,7 @@ public class VentanaTop extends JFrame {
         });
     }
 
-    // NUEVO (commit 8): exporta el reporte HTML y la gráfica
+    //  exporta el reporte HTML y la gráfica
     private void exportar() {
         JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Elige la carpeta donde guardar el reporte");

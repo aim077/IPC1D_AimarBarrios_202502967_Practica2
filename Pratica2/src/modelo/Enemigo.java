@@ -10,9 +10,9 @@ public class Enemigo extends ObjetoEspacial {
 
     @Override
     public void dibujar(Graphics2D g) {
-        g.setColor(Color.RED);
-        int[] xs = {x, x + ancho, x + ancho};
-        int[] ys = {y + alto / 2, y, y + alto};
-        g.fillPolygon(xs, ys, 3);
+        Dibujo.poli(g, new Color(220, 40, 60), x, y, ancho, alto,
+            0.0, 0.5, 0.35, 0.0, 1.0, 0.15, 0.8, 0.5, 1.0, 0.85, 0.35, 1.0);
+        g.setColor(Color.YELLOW);
+        g.fillOval(x + ancho * 3 / 10, y + alto * 4 / 10, 7, 7);
     }
 }

@@ -10,7 +10,11 @@ public class Quaffle extends ObjetoEspacial {
 
     @Override
     public void dibujar(Graphics2D g) {
-        g.setColor(Color.GREEN);
-        g.fillRect(x, y, ancho, alto);
+        g.setColor(new Color(60, 180, 90));
+        g.fillRoundRect(x, y, ancho, alto, 8, 8);
+        g.setColor(new Color(30, 110, 55));
+        g.drawRoundRect(x, y, ancho, alto, 8, 8);
+        g.setColor(Color.WHITE);
+        g.fillRect(x + 4, y + alto / 2 - 2, ancho - 8, 4);
     }
 }

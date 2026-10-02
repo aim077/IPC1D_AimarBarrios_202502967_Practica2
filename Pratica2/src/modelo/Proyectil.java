@@ -10,7 +10,9 @@ public class Proyectil extends ObjetoEspacial {
 
     @Override
     public void dibujar(Graphics2D g) {
-        g.setColor(Color.YELLOW);
-        g.fillRect(x, y, ancho, alto);
+        g.setColor(new Color(255, 255, 0, 90));            // brillo
+        g.fillRoundRect(x - 2, y - 2, ancho + 4, alto + 4, 6, 6);
+        g.setColor(new Color(255, 255, 200));              // núcleo
+        g.fillRoundRect(x, y, ancho, alto, 4, 4);
     }
 }

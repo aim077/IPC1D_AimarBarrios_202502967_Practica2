@@ -22,7 +22,7 @@ public class GestorPartidas {
     public synchronized Partida get(int i) { return partidas[i]; }
     public synchronized int getTotal() { return total; }
 
-    // Devuelve las n mejores partidas ordenadas de mayor a menor (burbuja)
+    // Devuelve las n mejores partidas ordenadas de mayor a menor 
     public synchronized Partida[] getTop(int n) {
         Partida[] copia = new Partida[total];
         for (int i = 0; i < total; i++) {

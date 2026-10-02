@@ -1,27 +1,33 @@
 package juego;
 
+import datos.Datos;
 import modelo.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
-import datos.Datos;
 
 public class PanelJuego extends JPanel implements KeyListener {
     public static final int ANCHO = 900;
     public static final int ALTO = 500;
 
-    private static final int NAVE_W = 50;
-    private static final int NAVE_H = 30;
+    private static final int NAVE_W = 70;
+    private static final int NAVE_H = 36;
     private static final int PASO = 5;
 
     private final Piloto piloto;
     private final TipoNave nave;
     private final Random rnd = new Random();
 
-    // Vector de objetos en pantalla (sin ArrayList, como pide la práctica)
+    // Vector de objetos en pantalla 
     private final ObjetoEspacial[] objetos = new ObjetoEspacial[200];
+
+    // Vectores del fondo de estrellas
+    private final int[] estrellaX = new int[60];
+    private final int[] estrellaY = new int[60];
+    private final int[] estrellaVel = new int[60];
 
     private volatile int naveX = 40;
     private volatile int naveY = ALTO / 2;
@@ -42,9 +48,15 @@ public class PanelJuego extends JPanel implements KeyListener {
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
+
+        for (int i = 0; i < estrellaX.length; i++) {
+            estrellaX[i] = rnd.nextInt(ANCHO);
+            estrellaY[i] = rnd.nextInt(ALTO);
+            estrellaVel[i] = 1 + rnd.nextInt(4);
+        }
     }
 
-    // ---------- HILOS ----------
+    // -- HILOS -
     public void iniciar() {
         new Thread(this::hiloMovimientoNave).start();
         new Thread(this::hiloGenerador).start();
@@ -60,7 +72,7 @@ public class PanelJuego extends JPanel implements KeyListener {
     private void hiloMovimientoNave() {
         while (enJuego) {
             if (System.currentTimeMillis() >= bloqueadoHasta) {
-                if (arriba && naveY > 0) naveY -= PASO;
+                if (arriba && naveY > 30) naveY -= PASO;
                 if (abajo && naveY < ALTO - NAVE_H) naveY += PASO;
                 if (izquierda && naveX > 0) naveX -= PASO;
                 if (derecha && naveX < ANCHO / 2) naveX += PASO;
@@ -72,24 +84,25 @@ public class PanelJuego extends JPanel implements KeyListener {
     // Genera objetos en el borde derecho
     private void hiloGenerador() {
         while (enJuego) {
-            int y = rnd.nextInt(ALTO - 40);
+            int y = 35 + rnd.nextInt(ALTO - 80);
             int r = rnd.nextInt(100);
-            if (r < 50) {
+            if (r < 45) {            // 45% enemigo
                 agregar(new Enemigo(y, 3 + rnd.nextInt(4)));
-            } else if (r < 75) {
+            } else if (r < 70) {     // 25% asteroide
                 agregar(new Asteroide(y));
-            } else if (r < 95) {
+            } else if (r < 88) {     // 18% quaffle
                 agregar(new Quaffle(y));
-            } else {
+            } else {                 // 12% snitch
                 agregar(new Snitch(y));
             }
             dormir(700);
         }
     }
 
-    // Ciclo principal: colisiones y repintado
+    // Ciclo principal:  colisiones y repintado
     private void hiloJuego() {
         while (enJuego) {
+            moverEstrellas();
             revisarColisiones();
             repaint();
             dormir(16);
@@ -106,6 +119,16 @@ public class PanelJuego extends JPanel implements KeyListener {
     }
 
     // ---------- LÓGICA ----------
+    private void moverEstrellas() {
+        for (int i = 0; i < estrellaX.length; i++) {
+            estrellaX[i] -= estrellaVel[i];
+            if (estrellaX[i] < 0) {
+                estrellaX[i] = ANCHO;
+                estrellaY[i] = rnd.nextInt(ALTO);
+            }
+        }
+    }
+
     private void agregar(ObjetoEspacial o) {
         synchronized (objetos) {
             for (int i = 0; i < objetos.length; i++) {
@@ -196,22 +219,33 @@ public class PanelJuego extends JPanel implements KeyListener {
         });
     }
 
-    // ---------- DIBUJO ----------
+    // DIBUJO 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Nave (parpadea si es invulnerable)
-        boolean parpadeo = System.currentTimeMillis() < invulnerableHasta
-                && (System.currentTimeMillis() / 100) % 2 == 0;
-        if (!parpadeo) {
-            g2.setColor(System.currentTimeMillis() < bloqueadoHasta ? Color.MAGENTA : Color.CYAN);
-            int[] xs = {naveX, naveX, naveX + NAVE_W};
-            int[] ys = {naveY, naveY + NAVE_H, naveY + NAVE_H / 2};
-            g2.fillPolygon(xs, ys, 3);
+        // Fondo degradado
+        g2.setPaint(new GradientPaint(0, 0, new Color(5, 5, 25), 0, ALTO, new Color(25, 10, 55)));
+        g2.fillRect(0, 0, ANCHO, ALTO);
+
+        // Estrellas
+        for (int i = 0; i < estrellaX.length; i++) {
+            int b = 60 + estrellaVel[i] * 45;
+            g2.setColor(new Color(b, b, b));
+            int t = estrellaVel[i] > 2 ? 2 : 1;
+            g2.fillRect(estrellaX[i], estrellaY[i], t, t);
         }
 
+        // Nave (parpadea si es invulnerable, se pone morada si está bloqueada)
+        long ahora = System.currentTimeMillis();
+        boolean parpadeo = ahora < invulnerableHasta && (ahora / 100) % 2 == 0;
+        if (!parpadeo) {
+            Dibujo.dibujarNave(g2, nave, naveX, naveY, NAVE_W, NAVE_H, ahora < bloqueadoHasta);
+        }
+
+        // Objetos del juego
         synchronized (objetos) {
             for (int i = 0; i < objetos.length; i++) {
                 if (objetos[i] != null && objetos[i].isActivo()) {
@@ -221,12 +255,19 @@ public class PanelJuego extends JPanel implements KeyListener {
         }
 
         // HUD
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, ANCHO, 28);
         g2.setColor(Color.WHITE);
-        g2.drawString("Piloto: " + piloto.getNombre() + " | Nave: " + nave.getNombre(), 10, 20);
-        g2.drawString("Puntaje: " + puntaje + "   Vidas: " + vidas, 10, 38);
-        if (System.currentTimeMillis() < bloqueadoHasta) {
+        g2.setFont(new Font("Arial", Font.BOLD, 13));
+        g2.drawString("Piloto: " + piloto.getNombre() + "  |  Nave: " + nave.getNombre(), 10, 19);
+        g2.drawString("Puntaje: " + puntaje, 520, 19);
+        for (int i = 0; i < vidas; i++) {   // una bolita roja por vida
+            g2.setColor(Color.RED);
+            g2.fillOval(700 + i * 25, 8, 14, 14);
+        }
+        if (ahora < bloqueadoHasta) {
             g2.setColor(Color.MAGENTA);
-            g2.drawString("¡NAVE BLOQUEADA!", ANCHO / 2 - 50, 20);
+            g2.drawString("¡NAVE BLOQUEADA!", ANCHO / 2 - 60, 50);
         }
     }
 
