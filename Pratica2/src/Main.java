@@ -1,11 +1,8 @@
-import juego.VentanaJuego;
-import modelo.Piloto;
-import modelo.TipoNave;
+import ui.VentanaMenu;
+import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
-        Piloto p = new Piloto("Prueba", TipoNave.ACORAZADO);
-        new VentanaJuego(p);
+        SwingUtilities.invokeLater(() -> new VentanaMenu().setVisible(true));
     }
 }
-
