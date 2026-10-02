@@ -4,10 +4,13 @@ import datos.Datos;
 import modelo.Partida;
 import org.jfree.chart.ChartPanel;
 import reportes.GraficaTop;
+import reportes.ReporteHTML;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 public class VentanaTop extends JFrame {
 
@@ -21,6 +24,11 @@ public class VentanaTop extends JFrame {
         pestanas.addTab("Top 10", crearPanelTop());
         pestanas.addTab("Historial", crearPanelHistorial());
         add(pestanas, BorderLayout.CENTER);
+
+        // botón para exportar el reporte
+        JButton btnExportar = new JButton("Exportar reporte (HTML)");
+        btnExportar.addActionListener(e -> exportar());
+        add(btnExportar, BorderLayout.SOUTH);
     }
 
     private JPanel crearPanelTop() {
@@ -61,5 +69,25 @@ public class VentanaTop extends JFrame {
                 return false;
             }
         });
+    }
+
+    // NUEVO (commit 8): exporta el reporte HTML y la gráfica
+    private void exportar() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Elige la carpeta donde guardar el reporte");
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+
+        File carpeta = fc.getSelectedFile();
+        try {
+            ReporteHTML.generar(carpeta);
+            JOptionPane.showMessageDialog(this,
+                    "Reporte generado en:\n" + carpeta.getAbsolutePath()
+                    + "\n\nÁbrelo en el navegador y usa Imprimir > Guardar como PDF.");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "No se pudo generar el reporte: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
